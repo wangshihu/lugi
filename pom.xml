@@ -9,9 +9,11 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>lu-common</module>
         <module>lu-utils</module>
-        <module>lu-network</module>
+        <module>lu-core</module>
+        <module>lu-client</module>
+        <module>lu-server</module>
+        <module>lu-z-test</module>
     </modules>
 
     <properties>
