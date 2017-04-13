@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.benchu.lu.network.Connection;
 import com.benchu.lu.network.Server;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -62,5 +63,15 @@ public class NettyServer implements Server {
         for (Channel channel : channelMap.values()) {
             channel.close().syncUninterruptibly();
         }
+    }
+
+    @Override
+    public Map<Integer, Connection> connectionMap() {
+        return null;
+    }
+
+    @Override
+    public Connection getConnection(Integer id) {
+        return null;
     }
 }

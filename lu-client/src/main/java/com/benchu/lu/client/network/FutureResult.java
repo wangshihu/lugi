@@ -20,4 +20,5 @@ public class FutureResult<T> extends CompletableFuture<T>  {
     public long getCreateTime() {
         return createTime;
     }
+
 }

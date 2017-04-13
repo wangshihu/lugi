@@ -17,7 +17,6 @@ package com.benchu.lu.network.netty;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -30,25 +29,25 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.internal.chmv8.ConcurrentHashMapV8;
 
 /**
  * Channel消息处理类
  *
  */
 @Sharable
-class ChannelProcessor<I, O> extends SimpleChannelInboundHandler<I> implements Closeable {
+class ServerChannelProcessor<I, O> extends SimpleChannelInboundHandler<I> implements Closeable {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<Channel, Integer> channels = new ConcurrentHashMapV8<>();
 
     private final AtomicInteger seq = new AtomicInteger();
 
     private MsgHandler<I, O> msgHandler;
 
+    private ConnectionManager connectionManager;
+
     @SuppressWarnings("unchecked")
-    public ChannelProcessor(MsgHandler<I, O> msgHandler) {
+    public ServerChannelProcessor(MsgHandler<I, O> msgHandler) {
         super((Class<? extends I>) Object.class);
         this.msgHandler = msgHandler;
     }
@@ -77,15 +76,14 @@ class ChannelProcessor<I, O> extends SimpleChannelInboundHandler<I> implements C
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
+        connectionManager.put(channel);
         logger.warn("channel active. channel：" + channel);
-        this.channels.put(channel, this.seq.getAndIncrement());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.warn("channel closed." + ctx.channel() + " close");
-        this.seq.decrementAndGet();
-        this.channels.remove(ctx.channel());
+        connectionManager.remove(ctx.channel());
     }
 
     @Override
@@ -101,7 +99,7 @@ class ChannelProcessor<I, O> extends SimpleChannelInboundHandler<I> implements C
 
     @Override
     public void close() {
-        for (Channel channel : this.channels.keySet()) {
+        for (Channel channel : connectionManager.getConnectionMap().keySet()) {
             channel.close().syncUninterruptibly();
         }
     }

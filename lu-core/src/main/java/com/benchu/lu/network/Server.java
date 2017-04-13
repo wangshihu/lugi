@@ -16,6 +16,7 @@
 package com.benchu.lu.network;
 
 import java.io.Closeable;
+import java.util.Map;
 
 /**
  * 网络Server
@@ -27,4 +28,9 @@ public interface Server extends Closeable {
     void listen(int port);
 
     void close();
+
+    Map<Integer,Connection> connectionMap();
+
+    Connection getConnection(Integer id);
+
 }
